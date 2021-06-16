@@ -1,0 +1,9 @@
+image: registry.gitlab.com/gianet/moegui/devops/devops/ansible:2.9
+
+stages:
+  - ansible-lint
+
+ansible-lint:
+  stage: ansible-lint
+  script:
+    - ansible-lint .

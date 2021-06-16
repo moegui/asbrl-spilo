@@ -1,0 +1,69 @@
+- name: Create folder
+  file:
+    path: "/etc/spilo/repository"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rwX,g+rwX,o=rX
+  tags: asbrl-spilo
+
+- name: git clone
+  ansible.builtin.git:
+    repo: '{{ GIT_REPO }}'
+    dest: /etc/spilo/repository
+    version: "{{ GIT_TAG }}"
+  tags: asbrl-spilo
+
+- name: Create volume
+  docker_volume:
+    name: 'spilo-vol'
+    state: "{{ VOLUME_STATE }}"
+    driver_options:
+      type: none
+      device: '/spilo-vol'
+      o: bind
+  tags: asbrl-spilo
+
+- name: Docker build
+  docker_image:
+    name: "{{ IMAGE }}"
+    tag: "{{ IMAGE_TAG }}"
+    force_source: "true"
+    push: "{{ DOCKER_IMAGE_PUSH }}"
+    build:
+      path: "/etc/spilo/repository/postgres-appliance"
+      pull: true
+      nocache: true
+      rm: true
+    source: build
+  tags:
+  - asbrl-spilo
+
+- name: Docker run
+  docker_container:
+    name: "{{ CONTAINER_NAME }}"
+    image: "{{ IMAGE }}:{{ IMAGE_TAG }}"
+    pull: "no"
+    recreate: "yes"
+    volumes:
+    - spilo-vol:{{ PGDATA }}
+    env:
+      ETCD_URL: "{{ ETCD_URL }}"
+      PGUSER_STANDBY: "{{ PGUSER_STANDBY }}"
+      PGPASSWORD_STANDBY: "{{ PGPASSWORD_STANDBY }}"
+      PGUSER_ADMIN: "{{ PGUSER_ADMIN }}"
+      PGPASSWORD_ADMIN: "{{ PGPASSWORD_ADMIN }}"
+      PGUSER_SUPERUSER: "{{ PGUSER_SUPERUSER }}"
+      PGPASSWORD_SUPERUSER: "{{ PGPASSWORD_SUPERUSER }}"
+      PGDATA: "{{ PGDATA }}"
+      PGPORT: "{{ PGPORT }}"      
+    cpu_period: "{{ DOCKER_CPU_PERIOD }}"
+    cpu_quota: "{{ DOCKER_CPU_QUOTA }}"
+    memory: "{{ DOCKER_MEMORY }}"
+    state: "{{ CONTAINER_STATE }}"
+    restart_policy: "unless-stopped"
+    log_driver: "{{ DOCKER_LOG_DRIVER }}"
+    log_options: "{{ DOCKER_LOG_OPTIONS }}"
+    ports:
+    -  "{{ HOST_PGPORT }}:{{ PGPORT }}"
+  tags: asbrl-spilo

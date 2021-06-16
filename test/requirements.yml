@@ -1,0 +1,2 @@
+- src: git+https://github.com/moegui/asbrl-spilo.git
+  version: master

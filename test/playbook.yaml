@@ -1,0 +1,21 @@
+---
+- name: example
+  gather_facts: true
+  hosts: "etcd"
+  order: sorted
+
+  tasks:
+    - name: Run etcd1
+      include_role:
+        name: asbrl-spilo
+      vars:
+        ETCD_URL: "http//your-etcd-server"
+        PGUSER_STANDBY: "replication-user"
+        PGPASSWORD_STANDBY: "password123-replication-user"
+        PGUSER_ADMIN: "admin"
+        PGPASSWORD_ADMIN: "password123-admin"
+        PGUSER_SUPERUSER: "postgres"
+        PGPASSWORD_SUPERUSER: "password123-postgres"
+        PGDATA: "/etc/data/postgres"
+        PGPORT: "5432"  
+        HOST_PGPORT: "5432"

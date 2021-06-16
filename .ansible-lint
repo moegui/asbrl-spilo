@@ -1,0 +1,7 @@
+parseable: true
+use_default_rules: true
+verbosity: 1
+skip_list:
+ - '106'  # Role name {} does not match ``^[a-z][a-z0-9_]+$`` pattern   
+ - '701'  # meta/main.yml should contain relevant info                                                                                                              │
+ - '703'  # meta/main.yml default values should be changed   
