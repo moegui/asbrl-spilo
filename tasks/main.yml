@@ -51,12 +51,14 @@
 - name: Docker run
   docker_container:
     name: "{{ CONTAINER_NAME }}"
-    image: "{{ IMAGE }}:{{ IMAGE_TAG }}"
-    pull: "no"
+    image: "{{ IMAGE }}/{{ IMAGE_TAG }}"
+    pull: "yes"
     recreate: "yes"
     volumes:
     - spilo-vol:{{ PGDATA }}
     env:
+      PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
+      SCOPE: sftsscope
       ETCD_URL: "{{ ETCD_URL }}"
       PGUSER_STANDBY: "{{ PGUSER_STANDBY }}"
       PGPASSWORD_STANDBY: "{{ PGPASSWORD_STANDBY }}"
@@ -65,7 +67,7 @@
       PGUSER_SUPERUSER: "{{ PGUSER_SUPERUSER }}"
       PGPASSWORD_SUPERUSER: "{{ PGPASSWORD_SUPERUSER }}"
       PGDATA: "{{ PGDATA }}"
-      PGPORT: "{{ PGPORT }}"      
+      PGPORT: "{{ PGPORT }}"
     cpu_period: "{{ DOCKER_CPU_PERIOD }}"
     cpu_quota: "{{ DOCKER_CPU_QUOTA }}"
     memory: "{{ DOCKER_MEMORY }}"

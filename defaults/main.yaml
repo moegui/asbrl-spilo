@@ -1,7 +1,7 @@
 IMAGE: spilo-local
 IMAGE_TAG: 2.0-p4
 DOCKER_IMAGE_PUSH: false
-CONTAINER_NAME: etcd
+CONTAINER_NAME: spilo
 GIT_REPO: https://github.com/zalando/spilo.git
 GIT_TAG: 2.0-p4
 default_user: 'ubuntu'
@@ -16,3 +16,4 @@ DOCKER_IMAGE_PUSH: false
 PGUSER_SUPERUSER: postgres
 PGPORT: '5432'
 HOST_PGPORT: '5432'
+PGDATA: /home/postgres/pgdata
