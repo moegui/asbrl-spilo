@@ -28,9 +28,9 @@
   file:
     path: "/spilo-vol"
     state: directory
-    owner: root
-    group: root
-    mode: u+rwX,g+rwX,o=rX
+    owner: '999'
+    group: '999'
+    mode: '700'
   tags: asbrl-spilo
 
 - name: Docker build
@@ -77,4 +77,5 @@
     log_options: "{{ DOCKER_LOG_OPTIONS }}"
     ports:
     -  "{{ HOST_PGPORT }}:{{ PGPORT }}"
+    -  "{{ LEADER_PGPORT }}:8008"
   tags: asbrl-spilo
