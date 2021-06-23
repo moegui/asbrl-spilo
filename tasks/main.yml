@@ -52,7 +52,7 @@
   docker_container:
     name: "{{ CONTAINER_NAME }}"
     image: "{{ IMAGE }}/{{ IMAGE_TAG }}"
-    pull: "yes"
+    pull: "no"
     recreate: "yes"
     volumes:
     - spilo-vol:{{ PGDATA }}
