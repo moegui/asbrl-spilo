@@ -1,6 +1,5 @@
 IMAGE: spilo-local
 IMAGE_TAG: 2.0-p4
-DOCKER_IMAGE_PUSH: false
 CONTAINER_NAME: spilo
 GIT_REPO: https://github.com/zalando/spilo.git
 GIT_TAG: 2.0-p4
@@ -12,7 +11,7 @@ CONTAINER_STATE: 'started'
 VOLUME_STATE: 'present'
 DOCKER_LOG_DRIVER: "json-file"
 DOCKER_LOG_OPTIONS: "{}"
-DOCKER_IMAGE_PUSH: false
+DOCKER_IMAGE_PUSH: "no"
 PGUSER_SUPERUSER: postgres
 PGPORT: '5432'
 HOST_PGPORT: '5432'
