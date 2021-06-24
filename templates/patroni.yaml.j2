@@ -1,0 +1,106 @@
+bootstrap:
+  dcs:
+    loop_wait: 10
+    maximum_lag_on_failover: 33554432
+    postgresql:
+      parameters:
+        archive_mode: 'on'
+        archive_timeout: 1800s
+        autovacuum_analyze_scale_factor: 0.02
+        autovacuum_max_workers: 5
+        autovacuum_vacuum_scale_factor: 0.05
+        checkpoint_completion_target: 0.9
+        hot_standby: 'on'
+        log_autovacuum_min_duration: 0
+        log_checkpoints: 'on'
+        log_connections: 'on'
+        log_disconnections: 'on'
+        log_line_prefix: '%t [%p]: [%l-1] %c %x %d %u %a %h '
+        log_lock_waits: 'on'
+        log_min_duration_statement: 500
+        log_statement: ddl
+        log_temp_files: 0
+        max_connections: 131
+        max_replication_slots: 10
+        max_wal_senders: 10
+        tcp_keepalives_idle: 900
+        tcp_keepalives_interval: 100
+        track_functions: all
+        wal_level: hot_standby
+        wal_log_hints: 'on'
+      use_pg_rewind: true
+      use_slots: true
+    retry_timeout: 10
+    ttl: 30
+  initdb:
+  - encoding: UTF8
+  - locale: en_US.UTF-8
+  - data-checksums
+  post_init: /scripts/post_init.sh "zalandos"
+  users:
+    admin:
+      options:
+      - createrole
+      - createdb
+      password: "{{PGPASSWORD_ADMIN}}"
+etcd:
+  url: "{{ETCD_URL}}"
+  username: "{{ETCD_USERNAME}}"
+  password: "{{ETCD_PASSWORD}}"
+postgresql:
+  authentication:
+    replication:
+      password: "{{PGPASSWORD_STANDBY}}"
+      username: "{{PGUSER_STANDBY}}"
+    superuser:
+      password: "{{PGPASSWORD_SUPERUSER}}"
+      username: postgres
+  basebackup_fast_xlog:
+    command: /scripts/basebackup.sh
+    retries: 2
+  bin_dir: /usr/lib/postgresql/13/bin
+  callbacks:
+    on_role_change: /scripts/on_role_change.sh zalandos python3 /scripts/callback_aws.py
+    on_start: python3 /scripts/callback_aws.py
+    on_stop: python3 /scripts/callback_aws.py
+  connect_address: {{ansible_host}}:5432
+  create_replica_method:
+  - basebackup_fast_xlog
+  data_dir: /home/postgres/pgdata/pgroot/data
+  listen: '*:5432'
+  name: {{ansible_host}}
+  parameters:
+    archive_command: /bin/true
+    bg_mon.history_buckets: 120
+    bg_mon.listen_address: 0.0.0.0
+    extwlist.custom_path: /scripts
+    extwlist.extensions: btree_gin,btree_gist,citext,hstore,intarray,ltree,pgcrypto,pgq,pg_trgm,postgres_fdw,tablefunc,uuid-ossp,hypopg,timescaledb,pg_partman
+    log_destination: csvlog
+    log_directory: ../pg_log
+    log_file_mode: '0644'
+    log_filename: postgresql-%u.log
+    log_rotation_age: 1d
+    log_truncate_on_rotation: 'on'
+    logging_collector: 'on'
+    pg_stat_statements.track_utility: 'off'
+    shared_buffers: 983MB
+    shared_preload_libraries: bg_mon,pg_stat_statements,pgextwlist,pg_auth_mon,set_user,timescaledb,pg_cron,pg_stat_kcache
+    ssl: 'on'
+    ssl_cert_file: /run/certs/server.crt
+    ssl_key_file: /run/certs/server.key
+  pg_hba:
+  - local   all             all                                   trust
+  - hostssl all             +zalandos    127.0.0.1/32       pam
+  - host    all             all                127.0.0.1/32       md5
+  - hostssl all             +zalandos    ::1/128            pam
+  - host    all             all                ::1/128            md5
+  - hostssl replication     replication-user all                md5
+  - hostnossl all           all                all                reject
+  - hostssl all             +zalandos    all                pam
+  - hostssl all             all                all                md5
+  pgpass: /run/postgresql/pgpass
+  use_unix_socket: true
+restapi:
+  connect_address: {{ansible_host}}:8008
+  listen: :8008
+scope: {{SCOPE}}

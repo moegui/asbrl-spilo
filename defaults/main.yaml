@@ -1,10 +1,8 @@
-IMAGE: spilo-local
-IMAGE_TAG: 2.0-p4
+IMAGE: registry.opensource.zalan.do/acid/spilo-13
+IMAGE_TAG: 2.0-p6
 CONTAINER_NAME: spilo
 DOCKER_IMAGE_PULL: False
 DOCKER_IMAGE_PUSH: False
-GIT_REPO: https://github.com/zalando/spilo.git
-GIT_TAG: 2.0-p4
 default_user: 'ubuntu'
 DOCKER_CPU_PERIOD: 0
 DOCKER_CPU_QUOTA: 0

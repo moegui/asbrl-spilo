@@ -7,13 +7,6 @@
     mode: u+rwX,g+rwX,o=rX
   tags: asbrl-spilo
 
-- name: git clone
-  ansible.builtin.git:
-    repo: '{{ GIT_REPO }}'
-    dest: /etc/spilo/repository
-    version: "{{ GIT_TAG }}"
-  tags: asbrl-spilo
-
 - name: Create volume
   docker_volume:
     name: 'spilo-vol'
@@ -33,40 +26,33 @@
     mode: '700'
   tags: asbrl-spilo
 
-- name: Docker build
-  docker_image:
-    name: "{{ IMAGE }}"
-    tag: "{{ IMAGE_TAG }}"
-    force_source: "true"
-    push: "{{ DOCKER_IMAGE_PUSH }}"
-    build:
-      path: "/etc/spilo/repository/postgres-appliance"
-      pull: true
-      nocache: true
-      rm: true
-    source: build
-  tags:
-  - asbrl-spilo
+- name: copy template
+  template:
+    src: "patroni.yaml.j2"
+    dest: "/etc/spilo/patroni.yaml"
+    mode: u+rwX,g+rwX,o=rX
+  tags: asbrl-spilo  
 
 - name: Docker run
   docker_container:
     name: "{{ CONTAINER_NAME }}"
-    image: "{{ IMAGE }}:{{ IMAGE_TAG }}"
-    pull: "{{ DOCKER_IMAGE_PULL }}"
+    image: "{{IMAGE}}:{{IMAGE_TAG}}"
+    pull: "yes"
     recreate: "yes"
     volumes:
-    - spilo-vol:{{ PGDATA }}
+    - /spilo-vol:/home/postgres/pgdata/pgroot/data
+    - /etc/spilo/patroni.yaml:/run/postgres.yml
     env:
       PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
-      SCOPE: sftsscope
+      SCOPE: "{{SCOPE}}"
       ETCD_URL: "{{ ETCD_URL }}"
+      ETCD_USERNAME: "{{ ETCD_USERNAME }}"
+      ETCD_PASSWORD: "{{ ETCD_PASSWORD }}"
       PGUSER_STANDBY: "{{ PGUSER_STANDBY }}"
       PGPASSWORD_STANDBY: "{{ PGPASSWORD_STANDBY }}"
-      PGUSER_ADMIN: "{{ PGUSER_ADMIN }}"
       PGPASSWORD_ADMIN: "{{ PGPASSWORD_ADMIN }}"
-      PGUSER_SUPERUSER: "{{ PGUSER_SUPERUSER }}"
       PGPASSWORD_SUPERUSER: "{{ PGPASSWORD_SUPERUSER }}"
-      PGDATA: "{{ PGDATA }}"
+      PGDATA: "/home/postgres/pgdata/pgroot/data"
       PGPORT: "{{ PGPORT }}"
     cpu_period: "{{ DOCKER_CPU_PERIOD }}"
     cpu_quota: "{{ DOCKER_CPU_QUOTA }}"
