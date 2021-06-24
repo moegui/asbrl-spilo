@@ -31,12 +31,12 @@
     src: "patroni.yaml.j2"
     dest: "/etc/spilo/patroni.yaml"
     mode: u+rwX,g+rwX,o=rX
-  tags: asbrl-spilo  
+  tags: asbrl-spilo
 
 - name: Docker run
   docker_container:
     name: "{{ CONTAINER_NAME }}"
-    image: "{{IMAGE}}:{{IMAGE_TAG}}"
+    image: "{{ IMAGE }}:{{ IMAGE_TAG }}"
     pull: "yes"
     recreate: "yes"
     volumes:
@@ -44,7 +44,7 @@
     - /etc/spilo/patroni.yaml:/run/postgres.yml
     env:
       PATRONI_POSTGRESQL_LISTEN: 0.0.0.0:5432
-      SCOPE: "{{SCOPE}}"
+      SCOPE: "{{ SCOPE }}"
       ETCD_URL: "{{ ETCD_URL }}"
       ETCD_USERNAME: "{{ ETCD_USERNAME }}"
       ETCD_PASSWORD: "{{ ETCD_PASSWORD }}"
