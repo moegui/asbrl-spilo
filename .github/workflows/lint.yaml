@@ -1,0 +1,14 @@
+name: lint
+on:
+  push:
+    tags:
+    - '*'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container: registry.gitlab.com/moegui/ops/ansible:2.9
+    steps:
+        - uses: actions/checkout@v1
+        - name: Run Ansible Lint
+          run: ansible-lint .
+
